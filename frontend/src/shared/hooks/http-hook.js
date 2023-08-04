@@ -22,7 +22,9 @@ export const useHttpClient = () => {
       if(auth.token)
       headers["Authorization"] =  'Bearer ' + auth.token;
 
-      const url = `http://localhost:5001/${endpoint}`;
+      // const url = `http://localhost:5001/${endpoint}`;
+      const url = `https://dev-apis.mogiio.com/gc-lms-bc/${endpoint}`;
+      //https://dev-apis.mogiio.com/gc-lms-bc/
       console.log("url", url);
       setIsLoading(true);
       const httpAbortCtrl = new AbortController();

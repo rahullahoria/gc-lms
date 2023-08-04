@@ -79,7 +79,7 @@ export default function QuizManager(props) {
   const fetchQuiz = async () => {
     try {
         rows = [];
-      const responseData = await sendRequest(`api/quiz`);
+      const responseData = await sendRequest(`quiz`);
       console.log(responseData)
       for (let i = 0; i < responseData.length; i++){
           rows.push({...responseData[i],topics: responseData[i].topics.join(', ') });
@@ -96,7 +96,7 @@ export default function QuizManager(props) {
   const createQuizHandler = async () => {
     try {
       const responseData = await sendRequest(
-        "api/quiz",
+        "quiz",
         "POST",
         JSON.stringify({
           name: nameRef.current.value,
@@ -121,7 +121,7 @@ export default function QuizManager(props) {
   const UpdateQuizHandler = async (id) => {
     try {
       const responseData = await sendRequest(
-        `api/quiz/${id}`,
+        `quiz/${id}`,
         "PUT",
         JSON.stringify({
           status: "in-active"

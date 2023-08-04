@@ -60,7 +60,7 @@ export default function Quiz() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const responseData = await sendRequest(`api/quiz/${quizId}`);
+        const responseData = await sendRequest(`quiz/${quizId}`);
         
         setQuestionResponses(new Array(responseData.questions.length).fill(0));
         setLoadedQuiz(responseData);
@@ -111,7 +111,7 @@ export default function Quiz() {
   const submitQuestionResponse = async () =>{
     try {
       const responseData = await sendRequest(
-        'api/result',
+        'result',
         'POST',
         JSON.stringify({
           quizId,

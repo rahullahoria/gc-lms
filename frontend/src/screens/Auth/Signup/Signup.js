@@ -27,7 +27,7 @@ export default function Signup(props) {
     console.log(emailRef.current.value, passwordRef.current.value);
     try {
       const responseData = await sendRequest(
-        "api/users/signup",
+        "users/signup",
         "POST",
         JSON.stringify({
           name: nameRef.current.value,

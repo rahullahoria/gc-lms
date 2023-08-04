@@ -61,7 +61,7 @@ export default function Report() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const responseData = await sendRequest(`api/result/${reportId}`);
+        const responseData = await sendRequest(`result/${reportId}`);
         setLoadedResult(responseData);
 
         console.log("setLoadedResult", responseData);

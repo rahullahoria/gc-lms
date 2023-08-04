@@ -24,7 +24,7 @@ export default function Login(props) {
     console.log(mobEmailRef.current.value, passwordRef.current.value);
     try {
       const responseData = await sendRequest(
-        "api/users/login",
+        "users/login",
         "POST",
         JSON.stringify({
           email: mobEmailRef.current.value,
@@ -72,7 +72,7 @@ export default function Login(props) {
      
         </CardContent>
         <CardContent>
-          <Stack spacing={2} direction="row" lexWrap="wrap">
+          <Stack spacing={2} lexWrap="wrap">
             <Button
               variant="contained"
               size="large"

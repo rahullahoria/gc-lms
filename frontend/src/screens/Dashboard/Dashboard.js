@@ -39,7 +39,7 @@ export default function Dashboard(props) {
     const fetchPlaces = async () => {
       try {
         const responseData = await sendRequest(
-          `api/quiz?email=${auth.email}&mobile=${auth.mobile}`
+          `quiz?email=${auth.email}&mobile=${auth.mobile}`
         );
         setLoadedQuiz(responseData);
       } catch (err) {}
