@@ -28,10 +28,10 @@ export default function Login(props) {
   const changeValue = (e, fieldName) => {
       if(fieldName === "password"){
         if(e.target.value.length >= 5){
-          setPasswordErrorText("");
+          setPasswordError(false);
         }
         else {
-          setPasswordErrorText("Password should be at least 6 characters");
+          setPasswordError(true);
         }
       }
   }
@@ -82,7 +82,7 @@ export default function Login(props) {
                 variant="outlined"
                 type="password"
                 
-                error={passwordErrorText}
+                error={passwordError}
                 onChange={e => changeValue(e, 'password')}
                 style={{ width: "100%" }}
                 inputRef={passwordRef}
