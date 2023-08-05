@@ -2,7 +2,8 @@ import Gun from 'gun'
 import {useEffect, useState} from 'react'
 
 const gun = Gun({
-  peers: ['http:localhost:5001/gun'] // Put the relay node that you want here
+  peers: ['http:216.48.177.247:8000/gun'] // Put the relay node that you want here
+  // peers: ['https:dev-apis.mogiio.com/gc-lms-bc/gun']
 })
 
 function Doubt() {

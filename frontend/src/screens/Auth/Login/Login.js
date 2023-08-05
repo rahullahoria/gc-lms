@@ -17,8 +17,24 @@ export default function Login(props) {
   const auth = useContext(AuthContext);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
+  //password_error_text
+
+  const [passwordError, setPasswordError] = useState("");
+
+
   const mobEmailRef = useRef("");
   const passwordRef = useRef("");
+
+  const changeValue = (e, fieldName) => {
+      if(fieldName === "password"){
+        if(e.target.value.length >= 5){
+          setPasswordErrorText("");
+        }
+        else {
+          setPasswordErrorText("Password should be at least 6 characters");
+        }
+      }
+  }
 
   const loginSubmitHandler = async () => {
     console.log(mobEmailRef.current.value, passwordRef.current.value);
@@ -65,6 +81,9 @@ export default function Login(props) {
                 label="Password"
                 variant="outlined"
                 type="password"
+                
+                error={passwordErrorText}
+                onChange={e => changeValue(e, 'password')}
                 style={{ width: "100%" }}
                 inputRef={passwordRef}
               />
@@ -72,7 +91,7 @@ export default function Login(props) {
      
         </CardContent>
         <CardContent>
-          <Stack spacing={2} lexWrap="wrap">
+          <Stack spacing={2} >
             <Button
               variant="contained"
               size="large"
