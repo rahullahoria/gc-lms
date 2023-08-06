@@ -10,10 +10,21 @@ import CardMedia from "@mui/material/CardMedia";
 
 import Typography from "@mui/material/Typography";
 import { AuthContext } from "../../shared/context/auth-context";
-import { Box, Divider, Modal, Stack } from "@mui/material";
+import {
+  Box,
+  ButtonGroup,
+  Divider,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Modal,
+  Stack,
+} from "@mui/material";
 
 import { useHttpClient } from "../../shared/hooks/http-hook";
 import { useNavigate } from "react-router-dom";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 const style = {
   position: "absolute",
@@ -29,15 +40,15 @@ const style = {
 
 export default function Dashboard(props) {
   const [loadedQuiz, setLoadedQuiz] = useState([]);
+  const [activeButton, setActiveButton] = useState("quiz");
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
-  
 
   useEffect(() => {
     console.log("auth", auth);
-    const fetchPlaces = async () => {
+    const fetchQuiz = async () => {
       try {
         const responseData = await sendRequest(
           `quiz?email=${auth.email}&mobile=${auth.mobile}`
@@ -45,8 +56,16 @@ export default function Dashboard(props) {
         setLoadedQuiz(responseData);
       } catch (err) {}
     };
-    fetchPlaces();
+    fetchQuiz();
   }, [sendRequest, auth]);
+
+  const fetchResults = async () => {
+    try {
+      setLoadedQuiz([]);
+      const responseData = await sendRequest(`result`);
+      setLoadedQuiz(responseData);
+    } catch (err) {}
+  };
 
   const getQuizCard = (quiz) => {
     return (
@@ -97,12 +116,11 @@ export default function Dashboard(props) {
     return (
       <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
-         
           <Typography id="modal-modal-title" variant="h6">
             Instructions:
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            Don't Close the Tab of Web Browser
+            Don't Close/Change the Tab of Web Browser
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
             Don't Right Click on the Page
@@ -135,16 +153,78 @@ export default function Dashboard(props) {
     );
   };
 
+  const buttonGroupHandler = (type) => {
+    setActiveButton(type);
+    if (type === "quiz") {
+    } else if (type === "results") {
+      fetchResults();
+    }
+  };
+
+  const showResults = (results) => {
+    return (
+      <Box sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+        <List component="nav" aria-label="secondary mailbox folder">
+          {results.map((r, index) => (<>
+            <ListItemButton
+              onClick={(event) => {
+                navigate(`/report/${r._id}`);
+              }}
+            >
+              <ListItemText primary={r.quizName || "Result " + index} />
+              <ListItemIcon>
+                <ArrowForwardIosIcon />
+              </ListItemIcon>
+            </ListItemButton>
+            <Divider flexItem />
+            </>
+          ))}
+        </List>
+      </Box>
+    );
+  };
+
+  const buttons = [
+    <Button
+      variant={activeButton == "quiz" ? "contained" : "outlined"}
+      onClick={() => buttonGroupHandler("quiz")}
+      key="quiz"
+    >
+      Quiz
+    </Button>,
+    <Button
+      variant={activeButton == "results" ? "contained" : "outlined"}
+      onClick={() => buttonGroupHandler("results")}
+      key="results"
+    >
+      Results
+    </Button>,
+  ];
+
   return (
     <Stack spacing={2}>
-      {loadedQuiz._id && (
-        <Typography gutterBottom variant="h5" component="div">
-          Quiz
-        </Typography>
-      )}
-      {!isLoading && loadedQuiz._id && getQuizCard(loadedQuiz)}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          "& > *": {
+            m: 1,
+          },
+        }}
+      >
+        <ButtonGroup size="large" aria-label="large button group">
+          {buttons}
+        </ButtonGroup>
+      </Box>
 
-      {!loadedQuiz._id && (
+      {!isLoading &&
+        activeButton == "quiz" &&
+        loadedQuiz._id &&
+        getQuizCard(loadedQuiz)}
+      {!isLoading && activeButton == "results" && showResults(loadedQuiz)}
+
+      {!loadedQuiz._id && activeButton == "quiz" && (
         <Typography gutterBottom variant="h5" component="div">
           No Quiz For You
         </Typography>

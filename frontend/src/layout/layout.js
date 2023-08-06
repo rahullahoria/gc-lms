@@ -56,22 +56,22 @@ useEffect(() => {
 }, [window]);
 
 const checkBeforeRefreshRoute = () => {
-  const lastRoute = localStorage.getItem("lastRoute");
-  if(lastRoute ){
-    localStorage.removeItem("lastRoute");
-    navigate(lastRoute);
+  // const lastRoute = localStorage.getItem("lastRoute");
+  // if(lastRoute ){
+  //   localStorage.removeItem("lastRoute");
+  //   navigate(lastRoute);
 
 
-  }
+  // }
 }
 
 
 
 const alertUser = (e) => {
-  e.preventDefault();
-  e.returnValue = "";
-  console.log(location.pathname);
-  localStorage.setItem("lastRoute",location.pathname)
+  // e.preventDefault();
+  // e.returnValue = "";
+  // console.log(location.pathname);
+  // localStorage.setItem("lastRoute",location.pathname);
 };
 
 

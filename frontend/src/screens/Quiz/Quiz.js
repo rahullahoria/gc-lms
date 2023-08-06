@@ -53,8 +53,26 @@ export default function Quiz() {
   const handleClose = () => setOpen(false);
 
   const quizId = useParams().id;
+  // const windowLeaveCount = 0
 
   useEffect(() => {
+
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    window.onblur = () => { 
+      
+      if(window.windowLeaveCount < 3 ){
+        alert('You quiz will be submitted, next time!'); 
+        return window.windowLeaveCount++;
+      }
+      else if(window.windowLeaveCount >= 3 ){
+        window.onblur = () => { }
+        submitQuestionResponse();
+        return
+        
+      }
+      window.windowLeaveCount = 0;
+      //
+    }; 
     const fetchQuiz = async () => {
       try {
         const responseData = await sendRequest(`quiz/${quizId}`);
