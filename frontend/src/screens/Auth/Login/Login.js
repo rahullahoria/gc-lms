@@ -17,13 +17,13 @@ export default function Login(props) {
   const auth = useContext(AuthContext);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
-  //password_error_text
-
-  const [passwordError, setPasswordError] = useState("");
-
-
   const mobEmailRef = useRef("");
   const passwordRef = useRef("");
+
+  //password_error_text
+
+  const [passwordError, setPasswordError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
 
   const changeValue = (e, fieldName) => {
       if(fieldName === "password"){
@@ -34,10 +34,28 @@ export default function Login(props) {
           setPasswordError(true);
         }
       }
+      else if (fieldName === "email"){
+        if(validateEmail(e.target.value)){
+          setEmailError(false);
+        }
+        else {
+          setEmailError(true);
+        }
+      }
   }
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
 
   const loginSubmitHandler = async () => {
     console.log(mobEmailRef.current.value, passwordRef.current.value);
+    if(emailError || passwordError ) return;
+    if(!mobEmailRef.current.value || !passwordRef.current.value) return;
     try {
       const responseData = await sendRequest(
         "users/login",
@@ -75,15 +93,21 @@ export default function Login(props) {
                 inputRef={mobEmailRef}
                 variant="outlined"
                 style={{ width: "100%" }}
+
+                helperText={emailError?"Provide Valid Email Id":""}
+                error={emailError}
+                onChange={e => changeValue(e, 'email')}
               />
               <TextField
                 id="passsword"
                 label="Password"
                 variant="outlined"
                 type="password"
-                
+
+                helperText={passwordError?"Passsword Should be of 6 characters":""}
                 error={passwordError}
                 onChange={e => changeValue(e, 'password')}
+
                 style={{ width: "100%" }}
                 inputRef={passwordRef}
               />

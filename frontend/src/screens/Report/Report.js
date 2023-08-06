@@ -19,8 +19,10 @@ import Grid from "@mui/material/Unstable_Grid2";
 import { useHttpClient } from "../../shared/hooks/http-hook";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../shared/context/auth-context";
-import { Button, Divider, Typography } from "@mui/material";
+import { Button, Divider, IconButton, Typography } from "@mui/material";
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -57,6 +59,15 @@ export default function Report() {
   const navigate = useNavigate();
 
   const reportId = useParams().id;
+
+  const goToHomeHandler = () => {
+    navigate("/");
+  }
+
+  const goToHelpHandler = () => { 
+    const URL = `https://wa.me/918882307448?text=${encodeURI("Hi, How can you help me?\n\nHere is my quiz report\n"+window.location.href)}`;
+    window.open(URL, '_blank').focus();
+  }
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -122,7 +133,7 @@ export default function Report() {
               </Typography>
            
 
-              <Button style={{marginTop:"30px"}} variant="contained" endIcon={<WhatsAppIcon />}>
+              <Button style={{marginTop:"30px"}} onClick={goToHelpHandler} variant="contained" endIcon={<WhatsAppIcon />}>
                 Need Help to Improve
               </Button>
             </Grid>
@@ -152,6 +163,10 @@ export default function Report() {
 
   return (
     <>
+    <IconButton variant='contained' onClick={goToHomeHandler} 
+   sx={{ position: "fixed", top: 200, left: 0, zIndex: 2000 }}> <HomeOutlinedIcon /> Home</IconButton>
+   <IconButton variant='contained' onClick={goToHelpHandler} 
+   sx={{ position: "fixed", top: 230, left: 0, zIndex: 2000 }}> <WhatsAppIcon /> Help</IconButton>
       {!isLoading && loadedResult && (
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 300 }} aria-label="customized table">

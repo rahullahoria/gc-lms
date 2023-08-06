@@ -23,8 +23,57 @@ export default function Signup(props) {
   const emailRef = useRef("");
   const passwordRef = useRef("");
 
+  const [passwordError, setPasswordError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [nameError, setNameError] = useState(false);
+  const [mobileError, setMobileError] = useState(false);
+
+  const changeValue = (e, fieldName) => {
+    if (fieldName === "password") {
+      if (e.target.value.length >= 5) {
+        setPasswordError(false);
+      } else {
+        setPasswordError(true);
+      }
+    } else if (fieldName === "email") {
+      if (validateEmail(e.target.value)) {
+        setEmailError(false);
+      } else {
+        setEmailError(true);
+      }
+    } else if (fieldName === "name") {
+      if (e.target.value.length >= 3) {
+        setNameError(false);
+      } else {
+        setNameError(true);
+      }
+    } else if (fieldName === "mobile") {
+      if (e.target.value.length >= 10 && isNumeric(e.target.value)) {
+        setMobileError(false);
+      } else {
+        setMobileError(true);
+      }
+    }
+  };
+
+  const isNumeric = (str) => {
+    if (typeof str != "string") return false // we only process strings!  
+    return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+           !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+  }
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
   const signupSubmitHandler = async () => {
     console.log(emailRef.current.value, passwordRef.current.value);
+    if(nameError || emailError || passwordError || mobileError) return;
+    if(!nameRef.current.value || !emailRef.current.value || !mobileRef.current.value || !passwordRef.current.value) return;
     try {
       const responseData = await sendRequest(
         "users/signup",
@@ -56,7 +105,7 @@ export default function Signup(props) {
         <Typography gutterBottom variant="h5" component="div">
           Signup
         </Typography>
-        
+
         <Stack spacing={2}>
           <TextField
             inputRef={nameRef}
@@ -64,20 +113,32 @@ export default function Signup(props) {
             label="Name"
             variant="outlined"
             style={{ width: "100%" }}
+            helperText={nameError ? "Provide Valid Name" : ""}
+            error={nameError}
+            onChange={(e) => changeValue(e, "name")}
+          />
+          
+          <TextField
+            inputRef={mobileRef}
+            id="Mobile"
+            label="Mobile"
+            type="tel"
+            variant="outlined"
+            style={{ width: "100%" }}
+            helperText={mobileError ? "Provide Valid Mobile" : ""}
+            error={mobileError}
+            onChange={(e) => changeValue(e, "mobile")}
           />
           <TextField
             inputRef={emailRef}
             id="Email"
             label="Email"
+            type="email"
             variant="outlined"
             style={{ width: "100%" }}
-          />
-          <TextField
-            inputRef={mobileRef}
-            id="Mobile"
-            label="Mobile"
-            variant="outlined"
-            style={{ width: "100%" }}
+            helperText={emailError ? "Provide Valid Email" : ""}
+            error={emailError}
+            onChange={(e) => changeValue(e, "email")}
           />
           <TextField
             inputRef={passwordRef}
@@ -86,10 +147,11 @@ export default function Signup(props) {
             variant="outlined"
             type="password"
             style={{ width: "100%" }}
+            helperText={passwordError ? "Password should be of 6 Char" : ""}
+            error={passwordError}
+            onChange={(e) => changeValue(e, "password")}
           />
-          </Stack>
-      
-        
+        </Stack>
       </CardContent>
       <CardContent>
         <Stack spacing={2} lexWrap="wrap">

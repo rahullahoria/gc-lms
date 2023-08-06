@@ -1,5 +1,5 @@
 import { Outlet, Link } from "react-router-dom";
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
@@ -37,14 +37,45 @@ const drawerWidth = 240;
 const Layout = (props) => {
 
   const location = useLocation();
+  const { window } = props;
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
   console.log(location.pathname);
 
 const auth = useContext(AuthContext);
 const navigate = useNavigate();
 
+useEffect(() => {
+  window.addEventListener("beforeunload", alertUser);
+  checkBeforeRefreshRoute();
 
-  const { window } = props;
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  return () => {
+    window.removeEventListener("beforeunload", alertUser);
+  };
+
+}, [window]);
+
+const checkBeforeRefreshRoute = () => {
+  const lastRoute = localStorage.getItem("lastRoute");
+  if(lastRoute ){
+    localStorage.removeItem("lastRoute");
+    navigate(lastRoute);
+
+
+  }
+}
+
+
+
+const alertUser = (e) => {
+  e.preventDefault();
+  e.returnValue = "";
+  console.log(location.pathname);
+  localStorage.setItem("lastRoute",location.pathname)
+};
+
+
+
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -68,6 +99,25 @@ const navigate = useNavigate();
     }
   }
 
+  const getSideBarItems = () => {
+    if(auth.email == "rahul@mogiio.com"){
+      return ['Dashboard', 'Doubts', 'Quiz Manager', 'Logout'];
+    }
+    return ['Dashboard', 'Logout']
+  }
+
+  const getPageTitle = () => {
+   if(location.pathname == "/"){
+    return 'Dashboard';
+   }
+   else if(location.pathname.includes("/quiz-manager")){
+    return 'Quiz Manager';
+   }
+   else if(location.pathname.includes("/doubt")){
+    return 'Doubts';
+   }
+  }
+
   const getIcon = (tabName) => {
     if(tabName == "Dashboard") return <GridViewIcon />;
     if(tabName == "Doubts") return <PsychologyAltIcon />;
@@ -77,10 +127,21 @@ const navigate = useNavigate();
 
   const drawer = (
     <div>
-      <Toolbar />
+      <Toolbar >
+       
+        {/* <img
+        src="https://cdn6.mogiio.com/623c167b8799a500089abd4b/2023/07/03/insideWebAppLogo/GCinapplogo.png"
+        srcSet="https://cdn6.mogiio.com/623c167b8799a500089abd4b/2023/07/03/insideWebAppLogo/GCinapplogo.png"
+        alt="Green Coder"
+        loading="lazy"
+        style={{width: 70}}
+      /> */}
+     <Typography variant="h6" noWrap component="div">Green Coder</Typography>
+        </Toolbar>
+      
       <Divider />
       <List>
-        {['Dashboard', 'Doubts', 'Quiz Manager', 'Logout'].map((text, index) => (
+        {getSideBarItems().map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton onClick={()=>{listItemHandler(text);}}>
               <ListItemIcon>
@@ -95,7 +156,7 @@ const navigate = useNavigate();
     </div>
   );
 
-  const container = window !== undefined ? () => window().document.body : undefined;
+  const container =  undefined;
 
   return (
     <>
@@ -121,7 +182,7 @@ const navigate = useNavigate();
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Green Coder LMS
+            {getPageTitle()}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -131,6 +192,7 @@ const navigate = useNavigate();
         aria-label="mailbox folders"
       >
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+        
         <Drawer
           container={container}
           variant="temporary"

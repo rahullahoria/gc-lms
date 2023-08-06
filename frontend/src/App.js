@@ -1,6 +1,9 @@
 import logo from "./logo.svg";
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+
+
+import React, { useState, useRef, useContext, useEffect } from "react";
 
 import Layout from "./layout/layout";
 
@@ -17,13 +20,19 @@ import { useAuth } from './shared/hooks/auth-hook';
 import Doubt from "./screens/Doubt/Doubt";
 
 
+
+
 function App() {
+
+
   const { token, login, logout, userId, email, mobile } = useAuth();
+
+  
 
   const getRoutes = () => {
     if (token) {
       return (
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<Layout window={window} />}>
           
           <Route path="/quiz/:id" element={<Quiz />} />
           <Route path="/" element={<Dashboard />} />

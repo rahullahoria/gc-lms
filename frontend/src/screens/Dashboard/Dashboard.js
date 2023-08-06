@@ -33,6 +33,7 @@ export default function Dashboard(props) {
 
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     console.log("auth", auth);
