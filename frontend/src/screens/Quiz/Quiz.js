@@ -67,11 +67,11 @@ export default function Quiz() {
       else if(window.windowLeaveCount >= 3 ){
         window.onblur = () => { }
         submitQuestionResponse();
-        return
+        return;
         
       }
       window.windowLeaveCount = 0;
-      //
+      
     }; 
     const fetchQuiz = async () => {
       try {
@@ -225,7 +225,7 @@ export default function Quiz() {
                 </CardContent>
                 <CardContent>
                   <Stack
-                    spacing={50}
+                    spacing={2}
                     justifyContent="space-between"
                     direction="row"
                   >
