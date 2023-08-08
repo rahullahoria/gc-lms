@@ -25,9 +25,12 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import Modal from "@mui/material/Modal";
+import { useNavigate } from "react-router-dom";
+import SummarizeIcon from '@mui/icons-material/Summarize';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 const columns = [
   { id: "name", label: "Quiz Name", minWidth: 170 },
@@ -53,17 +56,34 @@ const columns = [
   },
 ];
 
+const resultColumns = [
+  { id: "username", label: "User Name", minWidth: 100 },
+  { id: "mobile", label: "Mobile", minWidth: 100 },
+  { id: "quizName", label: "Quiz Name", minWidth: 100 },
+  { id: "score", label: "Score", minWidth: 70 },
+  { id: "topicScore", label: "Topic Score", minWidth: 70 },
+  {
+    id: "actions",
+    label: "Actions",
+    minWidth: 70,
+    align: "right",
+  },
+];
+
 function createData(name, code, population, size) {
   const density = population / size;
   return { name, code, population, size, density };
 }
 
-let rows = [
- 
-];
+let rows = [];
+
+let resultRows = [];
 
 export default function QuizManager(props) {
+  const navigate = useNavigate();
+
   const [loadedQuiz, setLoadedQuiz] = useState([]);
+  const [results, setResults] = useState([]);
 
   const auth = useContext(AuthContext);
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
@@ -78,19 +98,50 @@ export default function QuizManager(props) {
 
   const fetchQuiz = async () => {
     try {
-        rows = [];
+      rows = [];
       const responseData = await sendRequest(`quiz`);
-      console.log(responseData)
-      for (let i = 0; i < responseData.length; i++){
-          rows.push({...responseData[i],topics: responseData[i].topics.join(', ') });
+      console.log(responseData);
+      for (let i = 0; i < responseData.length; i++) {
+        rows.push({
+          ...responseData[i],
+          topics: responseData[i].topics.join(", "),
+        });
       }
       setLoadedQuiz(responseData);
     } catch (err) {}
   };
 
+  const topicScoreToString = (topics) => {
+    let str = "";
+    Object.keys(topics).forEach((key) => {
+      str += `${key}: ${topics[key].correct}/${topics[key].incorrect}/${topics[key].nonAttempted}, `;
+    });
+    return str;
+  };
+
+  const fetchResults = async () => {
+    try {
+      resultRows = [];
+      const responseData = await sendRequest(`result/all`);
+      console.log(responseData);
+      for (let i = 0; i < responseData.length; i++) {
+        resultRows.push({
+          ...responseData[i],
+          username: responseData[i].user.name,
+          mobile: responseData[i].user.mobile,
+          score: `${responseData[i].score.correct}/${responseData[i].score.incorrect}/${responseData[i].score.nonAttempted}`,
+          topicScore: topicScoreToString(responseData[i].topicScore),
+        });
+      }
+
+      console.log(resultRows);
+      setResults(responseData);
+    } catch (err) {}
+  };
+
   useEffect(() => {
-    
     fetchQuiz();
+    fetchResults();
   }, [sendRequest, auth]);
 
   const createQuizHandler = async () => {
@@ -111,11 +162,7 @@ export default function QuizManager(props) {
       );
       handleClose();
       fetchQuiz();
-
-     
     } catch (err) {}
-
-  
   };
 
   const UpdateQuizHandler = async (id) => {
@@ -124,17 +171,14 @@ export default function QuizManager(props) {
         `quiz/${id}`,
         "PUT",
         JSON.stringify({
-          status: "in-active"
+          status: "in-active",
         }),
         {
           "Content-Type": "application/json",
         }
       );
       fetchQuiz();
-     
     } catch (err) {}
-
-  
   };
 
   //   const emails = [];
@@ -166,7 +210,7 @@ export default function QuizManager(props) {
 
   let questions = [];
   const questionCSVHandler = (event) => {
-    console.log("questionCSVHandler",event.target.files[0])
+    console.log("questionCSVHandler", event.target.files[0]);
     // Passing file data (event.target.files[0]) to parse using Papa.parse
     Papa.parse(event.target.files[0], {
       header: true,
@@ -262,9 +306,9 @@ export default function QuizManager(props) {
   return (
     <>
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <Button size="small" onClick={handleOpen}>
-                + Quiz
-              </Button>
+        <Button size="small" onClick={handleOpen}>
+          + Quiz
+        </Button>
         <TableContainer sx={{ maxHeight: 440 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
@@ -298,7 +342,14 @@ export default function QuizManager(props) {
                             {column.format && typeof value === "number"
                               ? column.format(value)
                               : value}
-                              {column.id == 'actions' && (<DeleteIcon color="danger" onClick={()=>{UpdateQuizHandler(row["_id"])}} />)}
+                            {column.id == "actions" && (
+                              <DeleteIcon
+                                color="danger"
+                                onClick={() => {
+                                  UpdateQuizHandler(row["_id"]);
+                                }}
+                              />
+                            )}
                           </TableCell>
                         );
                       })}
@@ -312,6 +363,76 @@ export default function QuizManager(props) {
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
           count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+
+      <Paper sx={{ width: "100%", marginTop: 5, overflow: "hidden" }}>
+        <TableContainer sx={{ maxHeight: 800 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                {resultColumns.map((column) => (
+                  <TableCell
+                    key={column.id}
+                    align={column.align}
+                    style={{ minWidth: column.minWidth }}
+                  >
+                    {column.label}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {resultRows
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => {
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={row.code}
+                    >
+                      {resultColumns.map((column) => {
+                        const value = row[column.id];
+                        return (
+                          <TableCell key={column.id} align={column.align}>
+                            {column.format && typeof value === "number"
+                              ? column.format(value)
+                              : value}
+                            {column.id == "actions" && (
+                              <>
+                                <SummarizeIcon
+                                  color="danger"
+                                  onClick={(event) => {
+                                    navigate(`/report/${row["_id"]}`);
+                                  }}
+                                />
+                                <WhatsAppIcon
+                                  color="danger"
+                                  onClick={(event) => {
+                                    window.open(`https://wa.me/${row["mobile"]}`, '_blank').focus();
+                                  }}
+                                />
+                              </>
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 100]}
+          component="div"
+          count={resultRows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

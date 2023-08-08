@@ -134,6 +134,7 @@ export default function Quiz() {
 
   const submitQuestionResponse = async () => {
     try {
+      window.onblur = () => { }
       const responseData = await sendRequest(
         "result",
         "POST",

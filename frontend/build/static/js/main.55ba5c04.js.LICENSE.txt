@@ -96,4 +96,6 @@ License: MIT
  * LICENSE file in the root directory of this source tree.
  */
 
+//! moment.js
+
 //!opt && console.log("WHAT IS T?", JSON.stringify(t).length);

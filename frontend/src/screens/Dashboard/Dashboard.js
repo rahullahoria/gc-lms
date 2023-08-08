@@ -46,16 +46,18 @@ export default function Dashboard(props) {
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const fetchQuiz = async () => {
+    try {
+      const responseData = await sendRequest(
+        `quiz?email=${auth.email}&mobile=${auth.mobile}`
+      );
+      setLoadedQuiz(responseData);
+    } catch (err) {}
+  };
+
   useEffect(() => {
     console.log("auth", auth);
-    const fetchQuiz = async () => {
-      try {
-        const responseData = await sendRequest(
-          `quiz?email=${auth.email}&mobile=${auth.mobile}`
-        );
-        setLoadedQuiz(responseData);
-      } catch (err) {}
-    };
+   
     fetchQuiz();
   }, [sendRequest, auth]);
 
@@ -156,6 +158,7 @@ export default function Dashboard(props) {
   const buttonGroupHandler = (type) => {
     setActiveButton(type);
     if (type === "quiz") {
+      fetchQuiz();
     } else if (type === "results") {
       fetchResults();
     }
