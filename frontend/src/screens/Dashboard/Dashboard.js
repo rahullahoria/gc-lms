@@ -57,15 +57,30 @@ export default function Dashboard(props) {
 
   useEffect(() => {
     console.log("auth", auth);
-   
+
     fetchQuiz();
   }, [sendRequest, auth]);
 
+  const topicScoreToString = (topics) => {
+    let str = "";
+    Object.keys(topics).forEach((key) => {
+      str += `${key}: ${topics[key].correct}/${topics[key].incorrect}/${topics[key].nonAttempted}, `;
+    });
+    return str;
+  };
   const fetchResults = async () => {
     try {
       setLoadedQuiz([]);
       const responseData = await sendRequest(`result`);
-      setLoadedQuiz(responseData);
+      let resultRows = [];
+      for (let i = 0; i < responseData.length; i++) {
+        resultRows.push({
+          ...responseData[i],
+          score: `${responseData[i].score.correct}/${responseData[i].score.incorrect}/${responseData[i].score.nonAttempted}`,
+          topicScore: topicScoreToString(responseData[i].topicScore),
+        });
+      }
+      setLoadedQuiz(resultRows);
     } catch (err) {}
   };
 
@@ -166,20 +181,30 @@ export default function Dashboard(props) {
 
   const showResults = (results) => {
     return (
-      <Box sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+      <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
         <List component="nav" aria-label="secondary mailbox folder">
-          {results.map((r, index) => (<>
-            <ListItemButton
-              onClick={(event) => {
-                navigate(`/report/${r._id}`);
-              }}
-            >
-              <ListItemText primary={r.quizName || "Result " + index} />
-              <ListItemIcon>
-                <ArrowForwardIosIcon />
-              </ListItemIcon>
-            </ListItemButton>
-            <Divider flexItem />
+          {results.map((r, index) => (
+            <>
+              <ListItemButton
+                onClick={(event) => {
+                  navigate(`/report/${r._id}`);
+                }}
+              >
+                <ListItemText
+                  primary={
+                    (r.quizName || "Result " + index) +
+                    " | (" +
+                    r.score +
+                    ") | Correct/Incorrect/non attempted"
+                  }
+                  secondary={r.topicScore}
+                />
+
+                <ListItemIcon>
+                  <ArrowForwardIosIcon />
+                </ListItemIcon>
+              </ListItemButton>
+              <Divider flexItem />
             </>
           ))}
         </List>
